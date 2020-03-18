@@ -1,6 +1,6 @@
 ### Paquetes ----
 library(pacman)
-p_load(tidyverse, readr, scales, ggrepel, ggalluvial, ggfittext, tools)
+p_load(tidyverse, readr, scales, ggalluvial)
 
 ## Setup
 Sys.setlocale("LC_ALL", "es_ES.UTF-8") # Mac
