@@ -16,8 +16,11 @@ rm(list = ls())
 mexico <- read_excel("1_data/mexico.xlsx", 
                      col_types = c("numeric", "text", "text", 
                                    "numeric", "date", "text", "text", 
-                                   "date", "date"))
+                                   "date", "date", "numeric", "text", 
+                                   "numeric", "text"))
 
+mexico <- mexico %>% 
+  filter(inconsistencia_omision == 0)
 # Cuento síntomas
 sintomas <- mexico %>% 
   group_by(fecha_inicio) %>% 
@@ -54,16 +57,13 @@ toda <- toda %>%
   select(dates, sintomas, casos) %>% 
   arrange(dates)
 
+
 # Reemplazo NA por ceros
 toda <- toda %>% 
   mutate_at(vars(sintomas), ~replace(., is.na(.), 0))
 
 toda <- toda %>% 
   mutate_at(vars(casos), ~replace(., is.na(.), 0))
-
-# Reemplazo valores por 0
-toda <- toda %>% 
-  mutate_at(vars(sintomas.y), ~replace(., is.na(.), 0))
 
 # Hago sumas acumuladas
 toda[, 3] <- cumsum(toda[, 3])
@@ -78,7 +78,7 @@ diferencia <- toda %>%
          promedio = (sintomas + casos) / 2) %>% 
   mutate_if(is.numeric, round, 1) %>% 
   filter(dates >= "2020-03-08",
-         dates <= "2020-03-26")
+         dates <= "2020-03-29")
 
 ### Gráfica ----
 
@@ -101,7 +101,7 @@ toda %>%
                 y = promedio,
                 label = ratio),
             color = "red",
-            size = 2.4,
+            size = 2,
             data = diferencia,
             angle = 0,
             fontface = "bold") +
@@ -114,13 +114,13 @@ toda %>%
   geom_text(aes(x = dates,
                 y = casos,
                 label = casos),
-            size = 2.5,
+            size = 2,
             vjust = -0.3,
             color = cas) + 
   geom_text(aes(x = dates,
                 y = sintomas,
                 label = sintomas),
-            size = 2.5,
+            size = 2,
             vjust = -0.3,
             color = sint) + 
   scale_y_continuous(breaks = c(seq(0,
@@ -129,35 +129,35 @@ toda %>%
                      limits=c(0,maximo)) +
 
   scale_x_date(breaks = c(seq(as.Date("2020-02-27"),
-                              as.Date("2020-03-27"),
+                              as.Date("2020-03-30"),
                               by = "1 days")),
                labels = date_format("%b %d"),
                limits = c(as.Date("2020-02-26"),
-                          as.Date("2020-03-28"))) + 
+                          as.Date("2020-03-31"))) + 
   annotate("text",
-           x = as.Date("2020-02-26"), 
-           y = 640, 
-           label = "En gris: casos reportados por la SSa",
-           color = "grey60",
+           x = as.Date("2020-02-27"), 
+           y = 600, 
+           label = "En gris: casos por fecha reporte (B)",
+           color = "grey50",
            size = 3.8,
            hjust = 0) +
   annotate("text",
-           x = as.Date("2020-02-26"), 
-           y = 675, 
-           label = "En rojo: Ratio de casos sintomáticos/casos reportados",
+           x = as.Date("2020-02-27"), 
+           y = 650, 
+           label = "En rojo: Ratio A/B",
            color = "red",
            size = 3.8,
            hjust = 0) + 
   annotate("text",
-           x = as.Date("2020-02-26"),
-           y = 710, 
-           label = "En negro: casos sintomáticos (posteriormente reportados por la SSa)",
+           x = as.Date("2020-02-27"),
+           y = 700, 
+           label = "En negro: casos por fecha de inicio de síntomas (A)",
            color = "grey0",
            size = 3.8,
            hjust = 0) +
   
   labs(title = "Acumulado de casos sintomáticos y reportados de COVID-19 en México",
-       subtitle = "Actualizado al 27 de marzo de 2020",
+       subtitle = "Actualizado al 30 de marzo de 2020",
        caption = "@pCobosAlcala\n\nNota: el primer caso sintomático posteriormente reportado por la SSa es del 19 de febrero de 2020\nFuente: base de @guzmart_ con datos de la Secretaría de Salud (bit.ly/2QCgyPN)",
        x = "Fecha",
        y = "Casos acumulados") + 
